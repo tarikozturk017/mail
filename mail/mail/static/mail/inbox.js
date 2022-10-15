@@ -37,7 +37,6 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   //fetch mailbox to load data of "mailbox" parameter
-  // let url = '/emails/' + mailbox;
   fetch('/emails/' + mailbox)
   // Put response into json form
   .then(response => response.json())
@@ -46,13 +45,23 @@ function load_mailbox(mailbox) {
       for (let i = len - 1; i >= 0; i--) {
         const newDiv = document.createElement('div');
         const newP = document.createElement('p');
-        
+        // const newButton = `<button onclick="archive(${mailbox})" class="btn btn-sm btn-outline-primary" id="archive">Archive</button>`;
+        const newButton = document.createElement('button');
+        newButton.className= "btn btn-sm btn-outline-primary";
+        newButton.setAttribute('id', "archive");
+        newButton.addEventListener('click', () => archive(mailbox));
+        newButton.innerHTML = "Archive";
+
         newP.innerHTML = `Sender: ${data[i].sender}, Subject: ${data[i].subject}, Timestamp: ${data[i].timestamp}`
         newDiv.appendChild(newP);
+        newDiv.appendChild(newButton);
         newDiv.addEventListener('click', () => loadMailContent(data[i].id));
         document.querySelector('#emails-view').appendChild(newDiv);
+        // console.log(data);
       }
   });
+
+  
 }
 
 function send_mail(event){
@@ -62,7 +71,7 @@ function send_mail(event){
   const recipients = document.querySelector('#compose-recipients').value;
   const subject = document.querySelector('#compose-subject').value;
   const body = document.querySelector('#compose-body').value;
-  console.log(recipients);
+  // console.log(recipients);
   // send data to python
   fetch('/emails', {
     method: 'POST',
@@ -75,15 +84,21 @@ function send_mail(event){
   .then(response => response.json())
   .then(result => {
       // Print result
-      console.log(result);
+      // console.log(result);
       load_mailbox('sent');
   });
 }
 
 function loadMailContent(id){
-  // document.querySelector('#compose-recipients').value = ''
-  fetch('/emails/' + id)
   // Put response into json form
+  fetch('/emails/' + id, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+      })
+  })
+
+  fetch('/emails/' + id)
   .then(response => response.json())
   .then(data => {
       // console.log(data);
@@ -91,34 +106,31 @@ function loadMailContent(id){
       // markRead(id, data);
       mailContent.innerHTML = '';
       newP = document.createElement('p');
-      newP.innerHTML = `<strong>From:</strong> ${data.sender}<br>
-                        <strong>To:</strong> ${data.recipients}<br>
-                        <strong>Subject:</strong> ${data.subject}<br>
-                        <strong>Timestamp:</strong> ${data.timestamp}<br>
-                        <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button><br>
-                        <hr><br>
-                        ${data.body}`;
+      newP.innerHTML = generateContent(data);
       mailContent.appendChild(newP);
-
       mailContent.style.display = 'block';
       document.querySelector('#compose-view').style.display = 'none';
       document.querySelector('#emails-view').style.display = 'none';
-      // newP.innerHTML = "";
   });
-
- 
 }
 
-function markRead(mailId){
-  // let data = mailData;
-  fetch('/emails' + mailId, {
+function generateContent(data){
+  str = `<strong>From:</strong> ${data.sender}<br>
+        <strong>To:</strong> ${data.recipients}<br>
+        <strong>Subject:</strong> ${data.subject}<br>
+        <strong>Timestamp:</strong> ${data.timestamp}<br>
+        <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button><br>
+        <hr><br>
+        ${data.body}`
+  return str;
+}
+
+function archive(id){
+  fetch('/emails/' + id, {
     method: 'PUT',
-    body: JSON.stringify({read: false})
-  })
-  .then(response => response.json())
-  .then(result => {
-      // Print result
-      console.log(result);
-      // load_mailbox('sent');
-  });
+    body: JSON.stringify({
+        archive: true
+      })
+  }).then(console.log("Archived!"));
+
 }
