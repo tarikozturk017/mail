@@ -17,6 +17,7 @@ function compose_email() {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#mail-content-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -28,6 +29,7 @@ function compose_email() {
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
+  document.querySelector('#mail-content-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'block';
 
@@ -35,8 +37,8 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   //fetch mailbox to load data of "mailbox" parameter
-  let url = '/emails/' + mailbox;
-  fetch(url)
+  // let url = '/emails/' + mailbox;
+  fetch('/emails/' + mailbox)
   // Put response into json form
   .then(response => response.json())
   .then(data => {
@@ -44,8 +46,10 @@ function load_mailbox(mailbox) {
       for (let i = len - 1; i >= 0; i--) {
         const newDiv = document.createElement('div');
         const newP = document.createElement('p');
+        
         newP.innerHTML = `Sender: ${data[i].sender}, Subject: ${data[i].subject}, Timestamp: ${data[i].timestamp}`
         newDiv.appendChild(newP);
+        newDiv.addEventListener('click', () => loadMailContent(data[i].id));
         document.querySelector('#emails-view').appendChild(newDiv);
       }
   });
@@ -76,3 +80,45 @@ function send_mail(event){
   });
 }
 
+function loadMailContent(id){
+  // document.querySelector('#compose-recipients').value = ''
+  fetch('/emails/' + id)
+  // Put response into json form
+  .then(response => response.json())
+  .then(data => {
+      // console.log(data);
+      const mailContent = document.querySelector('#mail-content-view');
+      // markRead(id, data);
+      mailContent.innerHTML = '';
+      newP = document.createElement('p');
+      newP.innerHTML = `<strong>From:</strong> ${data.sender}<br>
+                        <strong>To:</strong> ${data.recipients}<br>
+                        <strong>Subject:</strong> ${data.subject}<br>
+                        <strong>Timestamp:</strong> ${data.timestamp}<br>
+                        <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button><br>
+                        <hr><br>
+                        ${data.body}`;
+      mailContent.appendChild(newP);
+
+      mailContent.style.display = 'block';
+      document.querySelector('#compose-view').style.display = 'none';
+      document.querySelector('#emails-view').style.display = 'none';
+      // newP.innerHTML = "";
+  });
+
+ 
+}
+
+function markRead(mailId){
+  // let data = mailData;
+  fetch('/emails' + mailId, {
+    method: 'PUT',
+    body: JSON.stringify({read: false})
+  })
+  .then(response => response.json())
+  .then(result => {
+      // Print result
+      console.log(result);
+      // load_mailbox('sent');
+  });
+}
