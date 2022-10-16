@@ -46,22 +46,34 @@ function load_mailbox(mailbox) {
         const newDiv = document.createElement('div');
         const newP = document.createElement('p');
         // const newButton = `<button onclick="archive(${mailbox})" class="btn btn-sm btn-outline-primary" id="archive">Archive</button>`;
-        const newButton = document.createElement('button');
-        newButton.className= "btn btn-sm btn-outline-primary";
-        newButton.setAttribute('id', "archive");
-        newButton.addEventListener('click', () => archive(mailbox));
-        newButton.innerHTML = "Archive";
 
+        //archive button
+        if(mailbox == 'inbox') {
+            const newButton = document.createElement('button');
+            newButton.className= "btn btn-sm btn-outline-primary";
+            newButton.setAttribute('id', "archive");
+            newButton.addEventListener('click', () => archive(data[i].id));
+            newButton.innerHTML = "Archive";
+            newDiv.appendChild(newButton);
+          } else if (mailbox == 'archive') {
+            const newButtonU = document.createElement('button');
+            newButtonU.className= "btn btn-sm btn-outline-primary";
+            newButtonU.setAttribute('id', "unarchive");
+            newButtonU.addEventListener('click', () => unarchive(data[i].id));
+            newButtonU.innerHTML = "Unarchive";
+            newDiv.appendChild(newButtonU);
+        }
         newP.innerHTML = `Sender: ${data[i].sender}, Subject: ${data[i].subject}, Timestamp: ${data[i].timestamp}`
+        newP.addEventListener('click', () => loadMailContent(data[i].id));
+        // if(mailbox != 'sent' ) newDiv.appendChild(newButton);
         newDiv.appendChild(newP);
-        newDiv.appendChild(newButton);
-        newDiv.addEventListener('click', () => loadMailContent(data[i].id));
+        // newDiv.addEventListener('click', () => loadMailContent(data[i].id));
         document.querySelector('#emails-view').appendChild(newDiv);
         // console.log(data);
+        // if(mailbox == 'sent' ) newButton.style.display = 'none';
+        console.log(data);
       }
   });
-
-  
 }
 
 function send_mail(event){
@@ -126,11 +138,23 @@ function generateContent(data){
 }
 
 function archive(id){
+  console.log(id);
   fetch('/emails/' + id, {
     method: 'PUT',
     body: JSON.stringify({
-        archive: true
+        archived: true
       })
-  }).then(console.log("Archived!"));
+  })
+  .then(load_mailbox('inbox'));
+}
 
+function unarchive(id){
+  console.log(id);
+  fetch('/emails/' + id, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: false
+      })
+  })
+  .then(load_mailbox('inbox'));
 }
