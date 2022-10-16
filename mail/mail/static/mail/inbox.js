@@ -45,9 +45,8 @@ function load_mailbox(mailbox) {
       for (let i = len - 1; i >= 0; i--) {
         const newDiv = document.createElement('div');
         const newP = document.createElement('p');
-        // const newButton = `<button onclick="archive(${mailbox})" class="btn btn-sm btn-outline-primary" id="archive">Archive</button>`;
 
-        //archive button
+        //archive/unarchive buttons
         if(mailbox == 'inbox') {
             const newButton = document.createElement('button');
             newButton.className= "btn btn-sm btn-outline-primary";
@@ -65,13 +64,8 @@ function load_mailbox(mailbox) {
         }
         newP.innerHTML = `Sender: ${data[i].sender}, Subject: ${data[i].subject}, Timestamp: ${data[i].timestamp}`
         newP.addEventListener('click', () => loadMailContent(data[i].id));
-        // if(mailbox != 'sent' ) newDiv.appendChild(newButton);
         newDiv.appendChild(newP);
-        // newDiv.addEventListener('click', () => loadMailContent(data[i].id));
-        document.querySelector('#emails-view').appendChild(newDiv);
-        // console.log(data);
-        // if(mailbox == 'sent' ) newButton.style.display = 'none';
-        console.log(data);
+        document.querySelector('#emails-view').appendChild(newDiv);      
       }
   });
 }
@@ -145,7 +139,7 @@ function archive(id){
         archived: true
       })
   })
-  .then(load_mailbox('inbox'));
+  .then(email => load_mailbox('inbox'));
 }
 
 function unarchive(id){
@@ -156,5 +150,5 @@ function unarchive(id){
         archived: false
       })
   })
-  .then(load_mailbox('inbox'));
+  .then(email => load_mailbox('inbox'));
 }
