@@ -113,6 +113,10 @@ function loadMailContent(id){
       mailContent.innerHTML = '';
       newP = document.createElement('p');
       newP.innerHTML = generateContent(data);
+      newP.querySelector('#reply').addEventListener('click', function(){
+        reply(data);
+      });
+      // console.log(newP.querySelector('#reply'));
       mailContent.appendChild(newP);
       mailContent.style.display = 'block';
       document.querySelector('#compose-view').style.display = 'none';
@@ -151,4 +155,12 @@ function unarchive(id){
       })
   })
   .then(email => load_mailbox('inbox'));
+}
+
+function reply(data){
+  compose_email();
+  console.log(data);
+  document.querySelector('#compose-recipients').value = data.sender;
+  if (data.subject) document.querySelector('#compose-subject').value = `Re: ${data.sender}`;
+  if (data.body) document.querySelector('#compose-body').value = `On ${data.timestamp} ${data.sender} wrote: ${data.body}`;
 }
