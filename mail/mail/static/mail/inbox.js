@@ -44,27 +44,34 @@ function load_mailbox(mailbox) {
       len = data.length;
       for (let i = len - 1; i >= 0; i--) {
         const newDiv = document.createElement('div');
+        newDiv.setAttribute('id', "mail");
         const newP = document.createElement('p');
-
+        newP.innerHTML = `Sender: ${data[i].sender}, Subject: ${data[i].subject}, Timestamp: ${data[i].timestamp}`
+        newDiv.appendChild(newP);
         //archive/unarchive buttons
         if(mailbox == 'inbox') {
+            const subDiv = document.createElement('div');
             const newButton = document.createElement('button');
             newButton.className= "btn btn-sm btn-outline-primary";
             newButton.setAttribute('id', "archive");
             newButton.addEventListener('click', () => archive(data[i].id));
             newButton.innerHTML = "Archive";
-            newDiv.appendChild(newButton);
+            subDiv.appendChild(newButton);
+            newDiv.appendChild(subDiv);
           } else if (mailbox == 'archive') {
+            const subDiv = document.createElement('div');
             const newButtonU = document.createElement('button');
             newButtonU.className= "btn btn-sm btn-outline-primary";
             newButtonU.setAttribute('id', "unarchive");
             newButtonU.addEventListener('click', () => unarchive(data[i].id));
             newButtonU.innerHTML = "Unarchive";
-            newDiv.appendChild(newButtonU);
+            subDiv.appendChild(newButtonU);
+            newDiv.appendChild(subDiv);
         }
-        newP.innerHTML = `Sender: ${data[i].sender}, Subject: ${data[i].subject}, Timestamp: ${data[i].timestamp}`
+        
         newP.addEventListener('click', () => loadMailContent(data[i].id));
-        newDiv.appendChild(newP);
+        
+        
         document.querySelector('#emails-view').appendChild(newDiv);      
       }
   });
