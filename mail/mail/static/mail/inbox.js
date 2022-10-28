@@ -168,6 +168,6 @@ function reply(data){
   compose_email();
   console.log(data);
   document.querySelector('#compose-recipients').value = data.sender;
-  if (data.subject) document.querySelector('#compose-subject').value = `Re: ${data.sender}`;
+  if (data.subject) document.querySelector('#compose-subject').value = `Re: ${data.subject}`;
   if (data.body) document.querySelector('#compose-body').value = `On ${data.timestamp} ${data.sender} wrote: ${data.body}`;
 }
