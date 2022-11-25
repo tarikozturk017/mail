@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
-
   document.querySelector("#compose-form").addEventListener('submit', send_mail);
 
   // By default, load the inbox
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function compose_email() {
-
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#mail-content-view').style.display = 'none';
@@ -27,7 +25,6 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
-  
   // Show the mailbox and hide other views
   document.querySelector('#mail-content-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
@@ -70,8 +67,6 @@ function load_mailbox(mailbox) {
         }
         
         newP.addEventListener('click', () => loadMailContent(data[i].id));
-        
-        
         document.querySelector('#emails-view').appendChild(newDiv);      
       }
   });
@@ -80,11 +75,10 @@ function load_mailbox(mailbox) {
 function send_mail(event){
   // avoid default submission
   event.preventDefault();
-  
+ 
   const recipients = document.querySelector('#compose-recipients').value;
   const subject = document.querySelector('#compose-subject').value;
   const body = document.querySelector('#compose-body').value;
-  // console.log(recipients);
   // send data to python
   fetch('/emails', {
     method: 'POST',
@@ -97,7 +91,6 @@ function send_mail(event){
   .then(response => response.json())
   .then(result => {
       // Print result
-      // console.log(result);
       load_mailbox('sent');
   });
 }
@@ -114,16 +107,13 @@ function loadMailContent(id){
   fetch('/emails/' + id)
   .then(response => response.json())
   .then(data => {
-      // console.log(data);
       const mailContent = document.querySelector('#mail-content-view');
-      // markRead(id, data);
       mailContent.innerHTML = '';
       newP = document.createElement('p');
       newP.innerHTML = generateContent(data);
       newP.querySelector('#reply').addEventListener('click', function(){
         reply(data);
       });
-      // console.log(newP.querySelector('#reply'));
       mailContent.appendChild(newP);
       mailContent.style.display = 'block';
       document.querySelector('#compose-view').style.display = 'none';
